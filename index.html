@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nihar for LivingAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Baloo+Tammudu+2:wght@500;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE friendly pitch from 1 engineer, calm and spacious, a few stickers for fun
+   IDEA a village morning, a farmer on a phone call standing next to his cow
+   PICTURE the farmer and cow scene, with the live call card sitting in the open sky
+   COLOUR milk white ground, grass green, turmeric accent, cow pink for stickers
+   TYPE Baloo 2 display (Devanagari) + Baloo Tammudu 2 (Telugu) + Nunito text
+   LAYOUT laptop, title on top, scene full width with call card in the left sky. phone, title, scene, card */
+:root{color-scheme:light dark;--bg:light-dark(#fffdf6,#0e1a12);--ink:light-dark(#16130d,#f4f1e6);--soft:light-dark(#5e584a,#b9b4a3);--grass:light-dark(#2f8f3a,#43b350);--gbg:light-dark(#e6f4de,#13291a);--tur:#f2b705;--pink:#ff9fb4;--card:light-dark(#ffffff,#16261b);--line:light-dark(#e8e2cf,#2c4433);--sky1:light-dark(#bfe6ff,#14304a);--sky2:light-dark(#fff3cf,#1d2a3a);--h1:light-dark(#a9d98f,#1f4a2a);--h2:light-dark(#7cc36a,#245a31);--gr:light-dark(#5fae4f,#2c6b35)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 Nunito,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Baloo 2","Baloo Tammudu 2",system-ui,sans-serif;line-height:1.08;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,5vw,52px);font-weight:800;max-width:20ch}
+h2{font-size:clamp(28px,3.6vw,40px);font-weight:800;max-width:24ch}
+h3{font-size:21px;font-weight:700}
+p{margin:.7em 0;max-width:62ch}
+a{color:inherit}
+.te{font-family:"Baloo Tammudu 2","Noto Sans Telugu",sans-serif}
+.band{padding:clamp(56px,8vw,112px) max(5vw,16px)}
+.wrap{max-width:1180px;margin:0 auto;position:relative}
+.green{background:var(--gbg)}
+.dark{background:#16130d;color:#f4f1e6}
+.lede{font-size:19px;color:var(--soft);margin-top:18px}
+.note{background:var(--card);border:2px dashed var(--tur);border-radius:18px;padding:16px 20px;margin-top:26px;max-width:720px}
+.note p{margin:0}
+.btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.btn{display:inline-flex;align-items:center;min-height:46px;padding:10px 18px;border-radius:14px;border:2.5px solid var(--ink);background:var(--card);color:var(--ink);font-weight:800;text-decoration:none;box-shadow:4px 4px 0 var(--ink);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+.btn.y{background:var(--tur);color:#16130d;border-color:#16130d}
+.dark .btn{border-color:#f4f1e6;background:#16130d;color:#f4f1e6;box-shadow:4px 4px 0 var(--tur)}
+.dark .btn.y{background:var(--tur);color:#16130d;border-color:#16130d}
+.btn:focus-visible,.tab:focus-visible,.chip:focus-visible{outline:3px solid var(--grass);outline-offset:3px}
+.scene{position:relative;margin-top:44px;border-radius:28px;overflow:hidden;min-height:460px;background:linear-gradient(var(--sky1),var(--sky2))}
+.scene svg{position:absolute;inset:0;width:100%;height:100%}
+.call{position:relative;z-index:2;margin:28px;width:min(400px,calc(100% - 56px));background:#fffdf6;color:#16130d;border-radius:22px;padding:16px;box-shadow:0 10px 0 rgba(22,19,13,.12)}
+.cb{display:flex;justify-content:space-between;font-size:14px;font-weight:800;margin-bottom:10px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#2f8f3a;margin-right:6px;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tab{font:700 15px "Baloo 2","Baloo Tammudu 2",sans-serif;min-height:44px;padding:6px 12px;border-radius:12px;border:2px solid #16130d;background:#fff;color:#16130d;cursor:pointer}
+.tab[aria-pressed=true]{background:var(--tur)}
+.bub{padding:11px 14px;border-radius:18px;max-width:94%;font-size:17px;line-height:1.45;margin-top:8px}
+.far{background:#ece6d3;border-bottom-left-radius:4px}
+.bot{background:#2f8f3a;color:#fff;border-bottom-right-radius:4px;margin-left:auto}
+.who{display:block;font:800 12px Nunito,sans-serif;opacity:.75;margin-bottom:2px}
+.small{font-size:14px;color:var(--soft)}
+.stk{display:inline-flex;align-items:center;gap:10px;padding:8px 16px 8px 8px;border-radius:20px;border:4px solid #fff;box-shadow:3px 5px 0 rgba(0,0,0,.16);transform:rotate(var(--r,-4deg));font:800 15px/1.25 "Baloo 2",sans-serif;color:#16130d;max-width:300px;transition:transform .2s}
+.stk:hover{transform:rotate(0) scale(1.05)}
+.stk svg{width:54px;height:54px;flex:none}
+.stk.y{background:var(--tur)}.stk.p{background:var(--pink)}.stk.g{background:#a6e396}
+.stkrow{display:flex;flex-wrap:wrap;gap:22px;margin-top:40px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.chip{font:700 15px/1.3 Nunito,sans-serif;padding:10px 16px;min-height:46px;border-radius:999px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.chip[aria-pressed=true]{border-color:var(--ink);background:var(--tur);color:#16130d}
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:40px;position:relative}
+.flow::before{content:"";position:absolute;left:8%;right:8%;top:46px;border-top:3px dashed var(--grass);z-index:0}
+.step{position:relative;z-index:1;text-align:center}
+.ic{width:92px;height:92px;margin:0 auto;border-radius:50%;background:var(--card);border:3px solid var(--grass);display:grid;place-items:center}
+.ic svg{width:62px;height:62px}
+.step h3{margin-top:14px;font-size:18px}
+.step .d{font-size:15px;color:var(--soft);margin-top:4px}
+.step .v{display:inline-block;margin-top:10px;font-weight:800;font-size:14px;background:var(--card);border:2px solid var(--ink);border-radius:10px;padding:3px 10px}
+.tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:44px}
+.tr .bub{max-width:none;margin:0;font-size:18px;padding:16px 18px}
+.tr .far{background:var(--card);color:var(--ink);border:2px solid var(--line)}
+.tag{margin-top:14px;font-size:15px;color:var(--soft)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(10em,1fr));gap:16px;margin:40px 0}
+.st .v{font:800 clamp(34px,4vw,44px)/1 "Baloo 2",sans-serif;color:var(--tur);white-space:nowrap}
+.st .l{font-size:15px;opacity:.8;margin-top:6px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,5vw,72px)}
+.two ul{padding-left:1.2em;margin:.8em 0}
+.two li{margin:.6em 0}
+.seen{background:var(--card);border:2.5px solid var(--ink);border-radius:22px;padding:24px;box-shadow:6px 6px 0 var(--grass)}
+.seen label{font-weight:800;display:block;margin-bottom:8px}
+.seen input{width:100%;font:16px Nunito,sans-serif;min-height:48px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.seen input:focus-visible{outline:3px solid var(--grass);outline-offset:2px}
+button.btn{cursor:pointer;font:800 16px Nunito,sans-serif}
+button.btn:disabled{opacity:.6;cursor:default}
+footer{text-align:center;padding:40px 16px 56px;font-size:14px;color:var(--soft)}
+@media(max-width:900px){.flow{grid-template-columns:minmax(0,1fr);gap:26px}.flow::before{left:46px;right:auto;top:20px;bottom:20px;border-top:0;border-left:3px dashed var(--grass)}.step{display:grid;grid-template-columns:92px minmax(0,1fr);gap:18px;text-align:left;align-items:center}.ic{margin:0}.step h3{margin-top:0}}
+@media(max-width:760px){.two,.tr{grid-template-columns:minmax(0,1fr)}.scene{min-height:0;display:flex;flex-direction:column}.scene svg{position:relative;height:300px;order:2}.call{margin:16px;width:auto}}
+@media(prefers-reduced-motion:reduce){.dot{animation:none}.stk,.btn{transition:none}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="cowf" viewBox="0 0 120 120">
+    <path d="M30 34c-10-6-14-16-12-26 6 8 14 12 22 14z" fill="#efe1b5" stroke="#16130d" stroke-width="3"/>
+    <path d="M90 34c10-6 14-16 12-26-6 8-14 12-22 14z" fill="#efe1b5" stroke="#16130d" stroke-width="3"/>
+    <ellipse cx="18" cy="50" rx="14" ry="8" fill="#fff" stroke="#16130d" stroke-width="3" transform="rotate(-20 18 50)"/>
+    <ellipse cx="102" cy="50" rx="14" ry="8" fill="#fff" stroke="#16130d" stroke-width="3" transform="rotate(20 102 50)"/>
+    <path d="M60 20c22 0 34 16 34 38 0 26-14 48-34 48S26 84 26 58c0-22 12-38 34-38z" fill="#fff" stroke="#16130d" stroke-width="3"/>
+    <path d="M36 32c8-4 16 2 14 10s-12 10-18 6c-3-5-1-13 4-16z" fill="#16130d"/>
+    <circle cx="47" cy="56" r="4.5" fill="#16130d"/><circle cx="73" cy="56" r="4.5" fill="#16130d"/>
+    <ellipse cx="60" cy="86" rx="26" ry="16" fill="#ffb3c1" stroke="#16130d" stroke-width="3"/>
+    <ellipse cx="51" cy="86" rx="4" ry="5" fill="#16130d"/><ellipse cx="69" cy="86" rx="4" ry="5" fill="#16130d"/>
+  </symbol>
+  <symbol id="shades" viewBox="0 0 120 120"><path d="M30 52h60" stroke="#16130d" stroke-width="4"/><rect x="33" y="49" width="22" height="13" rx="5" fill="#16130d"/><rect x="65" y="49" width="22" height="13" rx="5" fill="#16130d"/></symbol>
+  <symbol id="sweat" viewBox="0 0 120 120"><path d="M98 24c4 6 6 10 6 13a6 6 0 0 1-12 0c0-3 2-7 6-13z" fill="#69b7ff" stroke="#16130d" stroke-width="2"/></symbol>
+  <symbol id="coin" viewBox="0 0 120 120"><circle cx="100" cy="100" r="17" fill="#f2b705" stroke="#16130d" stroke-width="3"/><text x="100" y="108" text-anchor="middle" font-size="22" font-weight="800" fill="#16130d">₹</text></symbol>
+  <symbol id="farmer" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="56" fill="#fff3cf"/>
+    <path d="M28 116c2-22 14-34 32-34s30 12 32 34z" fill="#f4efe2" stroke="#16130d" stroke-width="3"/>
+    <circle cx="60" cy="56" r="20" fill="#8a5a3b" stroke="#16130d" stroke-width="3"/>
+    <path d="M38 48c2-16 12-22 22-22s20 6 22 22c-8-5-14-6-22-6s-14 1-22 6z" fill="#e8742a" stroke="#16130d" stroke-width="3"/>
+    <path d="M50 64c4 3 16 3 20 0" stroke="#16130d" stroke-width="3" fill="none"/>
+    <circle cx="53" cy="55" r="2.4" fill="#16130d"/><circle cx="67" cy="55" r="2.4" fill="#16130d"/>
+    <rect x="80" y="44" width="10" height="20" rx="3" fill="#16130d"/>
+  </symbol>
+</defs></svg>
+
+<header class="band" style="padding-bottom:clamp(40px,5vw,72px)">
+  <div class="wrap">
+    <h1>A farmer calls about his cow in Telugu, and hears the answer back in Telugu.</h1>
+    <p class="lede">Hi LivingAI team, I am Nihar Nandala. I wanted to apply to the Applied AI Junior role directly, but I thought it is better to show you my work than to send you one more resume. So I am building this, an LLM voice agent for dairy farmers.</p>
+    <div class="btns">
+      <a class="btn y" href="https://drive.google.com/file/d/1S4kGOt0-BQXdQx4PE6W_UFVGNt6d65on/view">▶ Watch my banking voice agent demo</a>
+      <a class="btn" href="https://banking-voice-agent-with-intelligent.onrender.com/ui">Try the live app</a>
+      <a class="btn" href="https://github.com/niharnandala/Banking_Voice_Agent_With_intelligent_Routing">GitHub</a>
+    </div>
+
+    <div class="scene" role="img" aria-label="A farmer on a phone call standing next to his cow">
+      <svg viewBox="0 0 1000 460" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
+        <circle cx="880" cy="90" r="46" fill="#ffd34d" opacity=".9"/>
+        <path d="M0 330C160 270 300 300 470 262S800 230 1000 270V460H0z" fill="var(--h1)"/>
+        <path d="M0 372C200 330 400 352 600 330S860 312 1000 330V460H0z" fill="var(--h2)"/>
+        <rect x="0" y="400" width="1000" height="60" fill="var(--gr)"/>
+        <g id="tufts" fill="var(--h2)"></g>
+        <ellipse cx="610" cy="418" rx="70" ry="9" fill="#16130d" opacity=".15"/>
+        <ellipse cx="830" cy="420" rx="120" ry="10" fill="#16130d" opacity=".15"/>
+        <!-- farmer -->
+        <g stroke="#16130d" stroke-width="3" stroke-linejoin="round">
+          <ellipse cx="590" cy="414" rx="14" ry="6" fill="#6b4329"/><ellipse cx="630" cy="414" rx="14" ry="6" fill="#6b4329"/>
+          <path d="M582 300h56l10 110h-76z" fill="#fbf8ef"/>
+          <path d="M610 300v110" stroke-width="2"/>
+          <path d="M576 196c0-14 10-22 34-22s34 8 34 22v112h-68z" fill="#f4efe2"/>
+          <path d="M582 196c10 30 22 56 30 112" fill="none" stroke="#2f8f3a" stroke-width="9" stroke-linecap="round"/>
+          <path d="M578 204c-10 30-12 58-8 86" fill="none" stroke="#f4efe2" stroke-width="18" stroke-linecap="round"/>
+          <path d="M578 204c-10 30-12 58-8 86" fill="none" stroke-width="3"/>
+          <circle cx="570" cy="292" r="8" fill="#8a5a3b"/>
+          <path d="M642 204c18 12 22 30 8 46l-14-74" fill="#f4efe2"/>
+          <rect x="604" y="166" width="12" height="14" fill="#8a5a3b" stroke-width="2"/>
+          <circle cx="610" cy="140" r="27" fill="#8a5a3b"/>
+          <path d="M582 132c2-22 14-30 28-30s26 8 28 30c-10-6-18-8-28-8s-18 2-28 8z" fill="#e8742a"/>
+          <path d="M600 152c5 4 16 4 20 0" fill="none"/>
+          <circle cx="601" cy="138" r="2.6" fill="#16130d" stroke="none"/><circle cx="620" cy="138" r="2.6" fill="#16130d" stroke="none"/>
+          <circle cx="640" cy="150" r="8" fill="#8a5a3b"/>
+          <rect x="634" y="118" width="11" height="26" rx="3" fill="#16130d"/>
+        </g>
+        <!-- cow -->
+        <g stroke="#16130d" stroke-width="3" stroke-linejoin="round">
+          <rect x="752" y="330" width="16" height="84" rx="6" fill="#fff"/><rect x="782" y="334" width="16" height="80" rx="6" fill="#fff"/>
+          <rect x="868" y="334" width="16" height="80" rx="6" fill="#fff"/><rect x="898" y="330" width="16" height="84" rx="6" fill="#fff"/>
+          <rect x="750" y="404" width="20" height="10" fill="#16130d"/><rect x="780" y="404" width="20" height="10" fill="#16130d"/><rect x="866" y="404" width="20" height="10" fill="#16130d"/><rect x="896" y="404" width="20" height="10" fill="#16130d"/>
+          <path d="M922 290c22 10 22 40 14 70" fill="none"/><path d="M936 358l-6 16 12-4z" fill="#16130d"/>
+          <path d="M740 290c0-34 30-52 90-52s100 18 100 52-30 56-96 56-94-22-94-56z" fill="#fff"/>
+          <path d="M790 252c20-6 40 4 36 22s-30 22-44 10c-6-12-2-28 8-32z" fill="#16130d"/>
+          <path d="M880 280c14-4 30 6 26 20s-24 16-34 6c-4-10 0-22 8-26z" fill="#16130d"/>
+          <ellipse cx="840" cy="344" rx="20" ry="10" fill="#ffb3c1"/>
+          <path d="M752 268c-14-20-30-26-48-22-14 4-20 20-14 38 6 16 20 22 34 18 12-4 24-14 28-34z" fill="#fff"/>
+          <path d="M716 238c-4-14 0-24 8-30 0 10 4 18 10 24z" fill="#efe1b5"/>
+          <ellipse cx="744" cy="250" rx="16" ry="7" fill="#fff" transform="rotate(25 744 250)"/>
+          <ellipse cx="694" cy="290" rx="18" ry="14" fill="#ffb3c1"/>
+          <circle cx="718" cy="262" r="4" fill="#16130d" stroke="none"/>
+          <ellipse cx="688" cy="290" rx="3" ry="4" fill="#16130d" stroke="none"/>
+        </g>
+      </svg>
+      <div class="call" role="region" aria-label="Sample call in 4 languages">
+        <div class="cb"><span><span class="dot"></span>On call · 00:42</span><span>Farm voice agent</span></div>
+        <div class="tabs" id="langs"></div>
+        <div class="bub far" id="fq"></div>
+        <div class="bub bot" id="fa"></div>
+        <p class="small" style="margin:12px 0 0;color:#5e584a">Sample farm data</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="band green">
+  <div class="wrap">
+    <h2>What happens on 1 call</h2>
+    <p>The farmer doesn't open any app. He just calls, and everything happens inside that call, even asking what his cow will sell for. Tap a question and watch it go through.</p>
+    <div class="chips" id="chips"></div>
+    <div class="flow" id="flow"></div>
+    <div class="tr">
+      <div class="bub far" id="tq"></div>
+      <div class="bub bot" id="ta"></div>
+    </div>
+    <p class="tag" id="tnote"></p>
+    <div class="stkrow">
+      <div class="stk y" style="--r:-3deg"><svg><use href="#cowf"/><use href="#coin"/></svg><span>POV you asked my price on a phone call<br>and got past sales, not vibes</span></div>
+      <div class="stk p" style="--r:3deg"><svg><use href="#cowf"/><use href="#sweat"/></svg><span>the agent is not a vet.<br>the agent calls the vet.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap two">
+    <div>
+      <h2>Why I picked this for LivingAI</h2>
+      <p>PashuRaksha already does herd health and vet alerts, PashuMandi does price discovery, and your NLP covers 22 languages. A farmer can use all of that just by calling, so I wanted to build that one call.</p>
+    </div>
+    <div>
+      <h3>What 1 call covers</h3>
+      <ul>
+        <li>His own cow records, like milk per cow, pregnancy, vaccination due and medical history</li>
+        <li>General cattle questions about breeds, breeding age and pregnancy period</li>
+        <li>Preliminary health guidance, and it tells him to call a vet when it looks like an emergency</li>
+        <li>What his cow might sell for, from past sales of similar cows</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="band dark">
+  <div class="wrap">
+    <h2>I already built this flow once, for banking</h2>
+    <p>My banking voice agent answers a bank customer in Telugu, Hindi, English or Hinglish. I built the router as a LangGraph state machine with Groq gpt-oss-120b, Postgres on Neon for account data, ChromaDB for policy RAG and Vachana by Gnani.ai for Indian voice TTS. I ran 95 labelled cases through the real pipeline, nothing mocked.</p>
+    <div class="stats">
+      <div class="st"><div class="v">95.8%</div><div class="l">intent accuracy, 91 of 95</div></div>
+      <div class="st"><div class="v">93.7%</div><div class="l">language accuracy, 89 of 95</div></div>
+      <div class="st"><div class="v">90%</div><div class="l">retrieval accuracy, 27 of 30</div></div>
+      <div class="st"><div class="v">2.97s</div><div class="l">median latency, p95 10.2s</div></div>
+    </div>
+    <p>Every language miss was Hindi predicted as Hinglish, because sentences like "mera loan status kya hai" have English loanwords in them. Farmers will mix in words like "vaccine" and "injection" the same way, so that is the first thing I will fix for the farm version.</p>
+    <div class="btns">
+      <a class="btn y" href="https://drive.google.com/file/d/1S4kGOt0-BQXdQx4PE6W_UFVGNt6d65on/view">▶ Demo video</a>
+      <a class="btn" href="https://banking-voice-agent-with-intelligent.onrender.com/ui">Live app</a>
+      <a class="btn" href="https://github.com/niharnandala/Banking_Voice_Agent_With_intelligent_Routing/blob/main/ENGINEERING.md">Build notes, bugs and all</a>
+    </div>
+    <p class="small" style="color:#b9b4a3;margin-top:16px">The first request on the live app can take 30 to 60 seconds because Render wakes the container up.</p>
+    <div class="stkrow"><div class="stk g" style="--r:-2deg"><svg><use href="#cowf"/><use href="#shades"/></svg><span>database 8 ms. LLM 2968 ms.<br>me optimising the database 🤡</span></div></div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap two">
+    <div>
+      <h2>Keeping it honest</h2>
+      <ul>
+        <li>I am building this on free tiers, so I will add or remove features based on the free resources I can actually get.</li>
+        <li>The database is limited for now, seeded with sample cows and sample sales.</li>
+        <li>Health answers never diagnose or prescribe medicine.</li>
+        <li>Prices are estimates from past sales, never a promise.</li>
+      </ul>
+      <div class="stkrow" style="margin-top:24px"><div class="stk p" style="--r:2deg"><svg><use href="#cowf"/><use href="#sweat"/></svg><span>free tier API limits<br>looking at my plans 👁️👄👁️</span></div></div>
+    </div>
+    <div>
+      <h2>About me</h2>
+      <p>I am an AI engineer in Hyderabad. I worked as an AI engineer intern for 6 months at Ibexlabs on a production RAG pipeline on AWS, and after that I built my own LLM voice agents, LLM agents, fine-tuning and classical ML projects.</p>
+      <p>I am applying for Applied AI Junior. I saw the Applied AI intern, full stack and GEC Goa campus roles too, and I am interested in those also. I mean honestly I care more about the product and the work I am doing than the role tag.</p>
+      <div class="btns"><a class="btn y" href="https://github.com/niharnandala">github.com/niharnandala</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="band green">
+  <div class="wrap two" style="align-items:center">
+    <div>
+      <h2>Did you see this?</h2>
+      <p>If you read till here, just tap 1 button. It sends me a small note so I know the page reached someone. It is completely optional and it doesn't commit you to anything.</p>
+      <div class="stkrow"><div class="stk y" style="--r:-3deg"><svg><use href="#cowf"/><use href="#sweat"/></svg><span>me refreshing my inbox<br>every 5 minutes</span></div></div>
+    </div>
+    <form id="seen" class="seen" novalidate>
+      <label for="sname">Your name, if you want to share it</label>
+      <input id="sname" name="name" type="text" autocomplete="name" placeholder="Optional">
+      <div class="btns" style="margin-top:16px">
+        <button class="btn" type="submit" data-v="I saw this">👀 I saw this</button>
+        <button class="btn y" type="submit" data-v="Keep building this">🐄 Keep building this</button>
+      </div>
+      <p id="smsg" class="small" aria-live="polite" style="margin-top:14px"></p>
+    </form>
+  </div>
+</section>
+
+<footer>Made by Nihar Nandala for LivingAI. Farm answers on this page are sample data. Banking numbers come from eval_results.csv in my repo.</footer>
+
+<script>
+{
+const L=[
+ {k:"te",n:"తెలుగు",q:"25వ నంబర్ ఆవు గత నెల ఎంత పాలు ఇచ్చింది?",a:"25వ నంబర్ ఆవు గత నెల 312 లీటర్ల పాలు ఇచ్చింది."},
+ {k:"hi",n:"हिंदी",q:"25 नंबर गाय ने पिछले महीने कितना दूध दिया?",a:"25 नंबर गाय ने पिछले महीने 312 लीटर दूध दिया।"},
+ {k:"hn",n:"Hinglish",q:"cow number 25 ne last month kitna doodh diya?",a:"Cow number 25 ne last month 312 litre doodh diya."},
+ {k:"en",n:"English",q:"How much milk did cow number 25 give last month?",a:"Cow number 25 gave 312 litres of milk last month."}];
+const langs=document.getElementById('langs'),fq=document.getElementById('fq'),fa=document.getElementById('fa');
+langs.innerHTML=L.map((l,i)=>`<button class="tab" type="button" id="lg-${l.k}" aria-pressed="${i===0}">${l.n}</button>`).join('');
+let li=0,auto=true;
+const setL=i=>{const l=L[i],t=l.k==='te'?' te':'';fq.className='bub far'+t;fa.className='bub bot'+t;fq.innerHTML='<span class="who">Farmer</span>'+l.q;fa.innerHTML='<span class="who">Agent</span>'+l.a;langs.querySelectorAll('.tab').forEach((b,j)=>b.setAttribute('aria-pressed',j===i))};
+langs.querySelectorAll('.tab').forEach((b,i)=>b.addEventListener('click',()=>{auto=false;setL(i)}));
+setL(0);
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(auto){li=(li+1)%L.length;setL(li)}},3800);
+
+const tufts=document.getElementById('tufts');let s=7;const r=()=>(s=s*16807%2147483647)/2147483647;
+tufts.innerHTML=Array.from({length:40},()=>{const x=r()*1000,y=402+r()*50,h=8+r()*10;return `<path d="M${x} ${y}l4 -${h}l4 ${h}l4 -${h*.8}l4 ${h*.8}z"/>`}).join('');
+
+const ICON={
+ call:'<svg viewBox="0 0 120 120"><use href="#farmer"/></svg>',
+ stt:'<svg viewBox="0 0 64 64"><path d="M6 32h4M14 22v20M22 14v36M30 24v16M38 18v28" stroke="#2f8f3a" stroke-width="4" stroke-linecap="round"/><path d="M46 26h12M46 34h12M46 42h8" stroke="#16130d" stroke-width="4" stroke-linecap="round"/></svg>',
+ route:'<svg viewBox="0 0 64 64"><circle cx="14" cy="32" r="8" fill="#f2b705" stroke="#16130d" stroke-width="3"/><path d="M22 32h8M30 32l12-14M30 32l12 14M30 32h14" stroke="#16130d" stroke-width="3" fill="none"/><circle cx="48" cy="16" r="5" fill="#2f8f3a"/><circle cx="50" cy="32" r="5" fill="#2f8f3a"/><circle cx="48" cy="48" r="5" fill="#2f8f3a"/></svg>',
+ find:'<svg viewBox="0 0 120 120"><use href="#cowf"/></svg>',
+ say:'<svg viewBox="0 0 64 64"><path d="M10 24h10l14-12v40L20 40H10z" fill="#f2b705" stroke="#16130d" stroke-width="3" stroke-linejoin="round"/><path d="M42 22c6 6 6 14 0 20M48 16c10 10 10 22 0 32" stroke="#2f8f3a" stroke-width="4" fill="none" stroke-linecap="round"/></svg>'};
+const STEPS=[["call","Farmer calls","He asks in his own language"],["stt","Voice to text","I turn his voice into text and detect the language"],["route","Router","It works out what kind of question this is"],["find","Find the answer","From the right source for that question"],["say","Reply on the call","Spoken back in the same language"]];
+const Q=[
+ {c:"Milk record",lang:"Telugu",te:true,kind:"His cow records",src:"his own cow database",q:"ఈ రోజు ఏ ఆవు తక్కువ పాలు ఇచ్చింది?",a:"ఈ రోజు 12వ నంబర్ ఆవు తక్కువగా 4 లీటర్లు ఇచ్చింది.",n:"Answered from the farmer's own records, not from the LLM's memory."},
+ {c:"Breed question",lang:"Hinglish",kind:"Cattle knowledge",src:"breed knowledge base",q:"Gir cow garmi mein theek rehti hai kya?",a:"Haan, Gir Gujarat ki desi breed hai aur garam mausam achhe se jhel leti hai.",n:"General breed info, no farm records needed."},
+ {c:"Fever",lang:"Hindi",kind:"Health guidance",src:"vet knowledge base",q:"मेरी गाय को बुखार है, क्या करूँ?",a:"अगर बुखार के साथ गाय खाना नहीं खा रही या सांस तेज़ चल रही है, तो आज ही डॉक्टर को बुलाइए। तब तक उसे छाँव और साफ पानी दीजिए।",n:"Preliminary guidance only, no diagnosis and no medicine names."},
+ {c:"Emergency",lang:"Telugu",te:true,kind:"Emergency",src:"skips advice, sends to vet",q:"ఆవు కింద పడిపోయింది, ఊపిరి సరిగ్గా ఆడటం లేదు",a:"ఇది అత్యవసరం. వెంటనే పశువుల డాక్టర్‌కి ఫోన్ చేయండి.",n:"Emergency symptoms skip the advice and tell the farmer to call the vet right away."},
+ {c:"Selling price",lang:"English",kind:"Selling price",src:"past sales of similar cows",q:"I have a 4 year old Gir cow. How much can I sell her for?",a:"12 similar Gir cows in your records sold in the last 12 months, and they averaged ₹65,000. This is an estimate, not a promise.",n:"It matches breed, age, milk and pregnancy against past sales, keeps the last 12 months and averages them, all inside the same call."}];
+const chips=document.getElementById('chips'),flow=document.getElementById('flow');
+chips.innerHTML=Q.map((q,i)=>`<button class="chip" type="button" id="qc-${i}" aria-pressed="false">${q.c} · ${q.lang}</button>`).join('');
+flow.innerHTML=STEPS.map((st,i)=>`<div class="step"><div class="ic">${ICON[st[0]]}</div><div><h3>${st[1]}</h3><div class="d">${st[2]}</div><span class="v" id="sv-${i}"></span></div></div>`).join('');
+const pick=i=>{const q=Q[i],t=q.te?' te':'';
+ chips.querySelectorAll('.chip').forEach((c,j)=>c.setAttribute('aria-pressed',j===i));
+ [q.lang+' call',q.lang+' detected',q.kind,q.src,'reply in '+q.lang].forEach((v,j)=>document.getElementById('sv-'+j).textContent=v);
+ const tq=document.getElementById('tq'),ta=document.getElementById('ta');
+ tq.className='bub far'+t;ta.className='bub bot'+t;
+ tq.innerHTML='<span class="who">Farmer</span>'+q.q;ta.innerHTML='<span class="who">Agent</span>'+q.a;
+ document.getElementById('tnote').textContent=q.n+' Sample data.'};
+chips.querySelectorAll('.chip').forEach((c,i)=>c.addEventListener('click',()=>pick(i)));
+pick(0);
+
+const form=document.getElementById('seen'),smsg=document.getElementById('smsg');
+let sent=false;
+form.addEventListener('submit',async e=>{
+ e.preventDefault();if(sent)return;
+ const choice=(e.submitter&&e.submitter.dataset.v)||'I saw this',name=document.getElementById('sname').value.trim();
+ const bs=form.querySelectorAll('button');bs.forEach(b=>b.disabled=true);smsg.textContent='Sending...';
+ try{
+  const r=await fetch('https://formspree.io/f/xrpqjdaq',{method:'POST',headers:{'Accept':'application/json','Content-Type':'application/json'},body:JSON.stringify({choice,name:name||'(not shared)',page:location.href,_subject:'Farm page click: '+choice})});
+  if(!r.ok)throw new Error(r.status);
+  sent=true;smsg.textContent=choice==='Keep building this'?'Thank you, that made my day. The farm demo is coming on Monday.':'Thank you, now I know it reached someone.';
+ }catch(err){bs.forEach(b=>b.disabled=false);smsg.textContent="That didn't go through. A reply to my email works just as well."}
+});
+}
+</script>
+</body>
+</html>
